@@ -22,6 +22,7 @@ function createMap() {
 }
 
 function fetchUsersAndAddMarkers(map) {
+
     let markers = [];
     const interval = setInterval(() => {
         //nationality = French
@@ -43,19 +44,19 @@ function fetchUsersAndAddMarkers(map) {
                             const markerToRemove = markers.shift();
                             map.removeLayer(markerToRemove);
                         }
-                        const marker = L.marker([latitude, longitude]).addTo(map).bindPopup(`${first} ${last}, ${city}`).openPopup();
+                        const marker = L.marker([latitude, longitude]).addTo(map).bindPopup(`<span class="city">${city}</span> ${first} ${last}`, {autoClose: true, autoPan: false}, {className: 'popup-style'});
                         markers.push(marker);
 
-                        //This line is used to put the last marker at the center of the map, it makes the transition a lot smoother
+                        /* This line is used to put the last marker at the center of the map, it makes the transition a lot smoother
                         const lastMarker = markers[markers.length - 1];
-                        map.panTo(lastMarker.getLatLng());
+                        map.panTo(lastMarker.getLatLng()); HOWEVER, we won't use it as it doesn't allow the user to select a marker.*/
                     }
                         
                     })
             .catch(error => console.log(error));
     })
         .catch(error => console.log(error));
-}, 10000);
+}, 1000);
 }
 
 const map = createMap();
