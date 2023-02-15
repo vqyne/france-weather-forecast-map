@@ -38,25 +38,42 @@ function fetchUsersAndAddMarkers(map) {
                     .then(data => {
                         const { latitude, longitude, country_code } = data.results[0];
                         if (country_code == 'FR') {
-                        
-                            console.log(`${first} ${last}, ${city}, ${latitude}, ${longitude}`);
-                            if(markers.length >= 10) {
-                            const markerToRemove = markers.shift();
-                            map.removeLayer(markerToRemove);
-                        }
-                        const marker = L.marker([latitude, longitude]).addTo(map).bindPopup(`<span class="city">${city}</span> ${first} ${last}`, {autoClose: true, autoPan: false}, {className: 'popup-style'});
-                        markers.push(marker);
+                            //console.log(`${first} ${last}, ${city}, ${latitude}, ${longitude}`);
+                            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    const temp = data.hourly.temperature_2m[0];
+                                    
+                                    if (markers.length >= 10) {
+                                        const markerToRemove = markers.shift();
+                                        map.removeLayer(markerToRemove);
+                                    }
+                                    const marker = L.marker([latitude, longitude]).addTo(map).bindPopup(`<span class="city">${city}</span> ${first} ${last} <br> <span id="temp">${temp}</span>`, { autoClose: true, autoPan: false }, { className: 'popup-style' });
+                                    
 
-                        /* This line is used to put the last marker at the center of the map, it makes the transition a lot smoother
-                        const lastMarker = markers[markers.length - 1];
-                        map.panTo(lastMarker.getLatLng()); HOWEVER, we won't use it as it doesn't allow the user to select a marker.*/
-                    }
-                        
+                                    const tempSpan = document.getElementById('temp');
+                                    if (temp < 8) {
+                                        tempSpan.style.color = 'Cyan';
+                                    } else if (temp >= 8 && temp < 18) {
+                                        tempSpan.style.color = 'Blue';
+                                    } else if (temp >= 18 && temp < 30) {
+                                        tempSpan.style.color = 'Coral';
+                                    } else {
+                                        tempSpan.style.color = 'Red'
+                                    }
+
+                                    markers.push(marker);
+                                })
+                                .catch(error => console.error(error));
+                            /* This line is used to put the last marker at the center of the map, it makes the transition a lot smoother
+                            const lastMarker = markers[markers.length - 1];
+                            map.panTo(lastMarker.getLatLng()); HOWEVER, we won't use it as it doesn't allow the user to select a marker.*/
+                        }
                     })
+                    .catch(error => console.log(error));
+            })
             .catch(error => console.log(error));
-    })
-        .catch(error => console.log(error));
-}, 1000);
+    }, 1000);
 }
 
 const map = createMap();
