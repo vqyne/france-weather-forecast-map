@@ -1,8 +1,8 @@
 /**==============================================
- **              INITIALIZE
- *?  This function builds the map with different options : zoom, latitude, ... 
- *@param
- *@return map
+ **              createMap
+ *? This function builds the map using differents options : zoom, latitude. ?
+ *@param None
+ *@return any
  *=============================================**/
 
 function createMap() {
@@ -21,60 +21,131 @@ function createMap() {
     return (map);
 }
 
-function fetchUsersAndAddMarkers(map) {
-
-    let markers = [];
-    const interval = setInterval(() => {
-        //nationality = French
-        fetch('https://randomuser.me/api/?nat=fr')
-            .then(response => response.json())
-            .then(data => {
-                const { name, location } = data.results[0];
-                // We get the first name, lase name and city that we will use in order to get weather data for this city.
-                const { first, last } = name;
-                const { city } = location;
-                fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const { latitude, longitude, country_code } = data.results[0];
-                        if (country_code == 'FR') {
-                            //console.log(`${first} ${last}, ${city}, ${latitude}, ${longitude}`);
-                            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m`)
-                                .then(response => response.json())
-                                .then(data => {
-                                    const temp = data.hourly.temperature_2m[0];
-                                    
-                                    if (markers.length >= 10) {
-                                        const markerToRemove = markers.shift();
-                                        map.removeLayer(markerToRemove);
-                                    }
-                                    const marker = L.marker([latitude, longitude]).addTo(map).bindPopup(`<span class="city">${city}</span> ${first} ${last} <br> <span id="temp">${temp}</span>`, { autoClose: true, autoPan: false }, { className: 'popup-style' });
-                                    
-
-                                    const tempSpan = document.getElementById('temp');
-                                    if (temp < 8) {
-                                        tempSpan.style.color = 'Cyan';
-                                    } else if (temp >= 8 && temp < 18) {
-                                        tempSpan.style.color = 'Blue';
-                                    } else if (temp >= 18 && temp < 30) {
-                                        tempSpan.style.color = 'Coral';
-                                    } else {
-                                        tempSpan.style.color = 'Red'
-                                    }
-
-                                    markers.push(marker);
-                                })
-                                .catch(error => console.error(error));
-                            /* This line is used to put the last marker at the center of the map, it makes the transition a lot smoother
-                            const lastMarker = markers[markers.length - 1];
-                            map.panTo(lastMarker.getLatLng()); HOWEVER, we won't use it as it doesn't allow the user to select a marker.*/
-                        }
-                    })
-                    .catch(error => console.log(error));
-            })
-            .catch(error => console.log(error));
-    }, 1000);
+/**==============================================
+ **              fetchUser
+ *? This function fetches a random user informations using an API to bring first name, last name, city name. ?
+ *@param None 
+ *@return Array
+ *=============================================**/
+async function fetchUser() {
+    try {
+        const response = await fetch('https://randomuser.me/api/?nat=fr');
+        const data = await response.json();
+        const { name, location } = data.results[0];
+        const { first, last } = name;
+        const { city } = location;
+        return [first, last, city];
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
 }
 
+/**==============================================
+ **              fetchCoords
+ *? This function fetches information from a city using an API to bring coords. ?
+ *@param user 
+ *@return Array
+ *=============================================**/
+async function fetchCoords(user) {
+    try {
+        const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${user[2]}`);
+        const data = await response.json();
+        const { latitude, longitude, country_code } = data.results[0];
+        return [latitude, longitude, country_code];
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+/**==============================================
+ **              fetchTemp
+ *?  What does it do?
+ *@param latitude Flaot
+ *@param longitude Float  
+ *@return Int
+ *=============================================**/
+async function fetchTemp(latitude, longitude) {
+    try {
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+        const data = await response.json();
+        const temp = data.current_weather.temperature;
+        return temp;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+/**==============================================
+ **              editTempSpan
+ *?  This function changes the color of the temperature span in order to put a color according to the temperature (cyan for cold, blue for fresh , orange for warmred for hot) ?
+ *@param temp Int
+ *@param tempSpan Span  
+ *@return None
+ *=============================================**/
+function editTempSpan(temp, tempSpan) {
+    tempSpan.textContent = temp + "°C"; // Set the text content of the span element
+    tempSpan.setAttribute("id", "temp"); // Add the id attribute to the span element
+    if (temp < 9) {
+        tempSpan.classList.add("cold");
+        tempSpan.classList.remove("fresh");
+        tempSpan.classList.remove("warm");
+        tempSpan.classList.remove("hot");
+    } else if (temp >= 9 && temp < 16) {
+        tempSpan.classList.add("fresh");
+        tempSpan.classList.remove("cold");
+        tempSpan.classList.remove("warm");
+        tempSpan.classList.remove("hot");
+    } else if (temp >= 16 && temp < 22) {
+        tempSpan.classList.add("warm");
+        tempSpan.classList.remove("cold");
+        tempSpan.classList.remove("fresh");
+        tempSpan.classList.remove("hot");
+    } else if (temp >= 22) {
+        tempSpan.classList.add("hot");
+        tempSpan.classList.remove("cold");
+        tempSpan.classList.remove("warm");
+        tempSpan.classList.remove("fresh");
+    }
+
+}
+
+/**================================================================================================
+ *                                         Main
+ * ? This function is used to user all of our functions defined above ?
+ *================================================================================================**/
+async function main() {
+    let markers = []; // We store the differents markers in a list
+        const user = await fetchUser(); // format : [first name, last name, city];
+        console.log(user);
+        const coords = await fetchCoords(user); // format : [latitude, longitude, country_code]
+        console.log(coords);
+
+        // This condition avoids us getting markers outside of France.
+        if (coords[2] == 'FR') {
+            const temp = await fetchTemp(coords[0], coords[1]);
+            console.log(temp);
+            const tempSpan = document.createElement("span"); // Create a span element
+            const marker = L.marker([coords[0], coords[1]]); // Create a marker on the coords given.
+            editTempSpan(temp, tempSpan);
+            const popupContent = `<span class="city">${user[2]}</span><div>${user[0]} ${user[1]}</div> <br> <div>${tempSpan.outerHTML}</div>`;
+
+            if (markers.length >= 10) {
+                const markerToRemove = markers.shift();
+                map.removeLayer(markerToRemove);
+            }
+            marker.addTo(map)
+                .bindPopup(popupContent, { autoClose: true, autoPan: false }, { className: 'popup-style' });
+            markers.push(marker);
+        }
+}
+
+//Creating the map
 const map = createMap();
-fetchUsersAndAddMarkers(map);
+
+//setInterval in order to add one marker to the map every second
+const intervalId = setInterval(() => {
+    main();
+}, 1000);

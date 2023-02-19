@@ -18,29 +18,6 @@ body, html {
   font-family: 'Circular-std', sans-serif;
 }
 
-
-.button {
-  box-sizing: border-box;
-  width: 0;
-  height: 74px;
-  border-style: solid;
-  z-index: 400;
-  border-width: 37px 0 37px 60px;
-  border-color: transparent transparent transparent #f4f4f4;
-  cursor: pointer;
-  will-change: border-width;
-  transition: all .2s ease;
-}
-
-.button.paused {
-  border-style: double;
-  border-width: 0px 0 0px 60px;
-}
-
-.button:hover {
-  border-color: transparent transparent transparent #404040;
-}
-
 .city {
   display: flex;
   justify-content: center;
@@ -55,4 +32,30 @@ body, html {
   justify-content: center;
   font-weight: bold;
   font-size: 16px;
+}
+
+.cold{
+  color: rgb(43, 223, 255);
+}
+
+.fresh{
+  color: rgb(45, 115, 255);;
+  
+}
+
+.warm{
+  color: coral;
+}
+
+.hot{
+  color: red;
+}
+
+#pauseButton{
+  z-index: 400;
+  position: absolute;
+  top: 3%;
+  right: 3%;
+  height: 30px;
+  width: 100px;
 }
