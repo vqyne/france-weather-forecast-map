@@ -9,6 +9,9 @@ body, html {
   height: 100%;
 }
 
+/**-----------------------
+ * *  CITY NAME STYLE
+ *------------------------**/
 .city {
   display: flex;
   justify-content: center;
@@ -22,17 +25,32 @@ body, html {
   display: flex;
   justify-content: center;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 15px;
   color: rgb(0, 0, 0);
   font-family: 'Circular-std', sans-serif;
 }
 
+/**-----------------------
+ * *  WEATHER CODE STYLE
+ *------------------------**/
+
+ #weather{
+  display: flex;
+  justify-content: center;
+  font-style: italic;
+  font-size: 13px;
+ }
+
+/**-----------------------
+ * *  TEMPERATURE STYLE
+ *------------------------**/
 #temp{
   display: flex;
   justify-content: center;
   font-weight: bold;
   font-size: 16px;
 }
+
 
 .cold{
   color: rgb(43, 223, 255);
@@ -49,13 +67,4 @@ body, html {
 
 .hot{
   color: red;
-}
-
-#pauseButton{
-  z-index: 400;
-  position: absolute;
-  top: 3%;
-  right: 3%;
-  height: 30px;
-  width: 100px;
 }
