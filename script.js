@@ -216,6 +216,63 @@ function editWeatherCodeSpan(weatherCode, weatherCodeSpan) {
 }
 
 /**==============================================
+ **              getWeatherIcon
+ *?  This function gets the icon associated to the weather ?
+ *@param code Int
+ *@return url
+ *=============================================**/
+ function getWeatherIcon(code) {
+    switch (code) {
+      case 0:
+        return "https://developer.foreca.com/static/images/symbols/d000.png";
+      case 1:
+      case 2:
+      case 3:
+        return "https://developer.foreca.com/static/images/symbols/d100.png";
+      case 45:
+      case 48:
+        return "https://developer.foreca.com/static/images/symbols/d600.png";
+      case 51:
+      case 53:
+      case 55:
+        return "https://developer.foreca.com/static/images/symbols/d210.png";
+      case 56:
+      case 57:
+        return "https://developer.foreca.com/static/images/symbols/d310.png";
+      case 61:
+      case 63:
+      case 65:
+        return "https://developer.foreca.com/static/images/symbols/d410.png";
+      case 66:
+      case 67:
+        return "https://developer.foreca.com/static/images/symbols/d420.png";
+      case 71:
+      case 73:
+      case 75:
+        return "https://developer.foreca.com/static/images/symbols/d440.png";
+      case 77:
+        return "https://developer.foreca.com/static/images/symbols/d240.png";
+      case 80:
+      case 81:
+      case 82:
+        return "https://developer.foreca.com/static/images/symbols/d230.png";
+      case 85:
+      case 86:
+        return "https://developer.foreca.com/static/images/symbols/d330.png";
+      case 95:
+        return "https://developer.foreca.com/static/images/symbols/d200.png";
+      case 96:
+      case 99:
+        return "https://developer.foreca.com/static/images/symbols/d210.png";
+      default:
+        return ;
+    }
+  }
+  
+  
+  
+
+/**==============================================
  **              editMarker
  *?  This function changes the color of the marker in order to put a color according to the temperature (cyan for cold, blue for fresh , orange for warm, red for hot) ?
  *@param temp Int
@@ -294,7 +351,7 @@ async function main() {
         // This condition avoids us getting markers outside of France.
         if (coords[2] == 'FR') {
             const temp = await fetchTempAndWeatherCode(coords[0], coords[1]);
-            console.log(temp);
+            //console.log(temp);
             //console.log(temp);
             const tempSpan = document.createElement("span"); // Create a span element for temperature
             const weatherCodeSpan = document.createElement("span"); // Create a span element for weather code message
@@ -302,7 +359,14 @@ async function main() {
             editTempSpan(temp[0], tempSpan);
             editWeatherCodeSpan(temp[1], weatherCodeSpan);
 
-            const popupContent = `<span class="city">${user[2]}</span><div>${user[0]} ${user[1]}</div> <br> <div>${tempSpan.outerHTML}</div> <br> <div>${weatherCodeSpan.outerHTML}</div>`;
+            // We store the link
+            link = getWeatherIcon(temp[1]);
+            console.log(link);
+            
+            const popupContent = `<span class="city">${user[2]}</span> <div style="display:flex; justify-content: center; font-size:12px;">${user[0]} ${user[1]}</div> <br> 
+            <div>${tempSpan.outerHTML}</div> <br> 
+            <div>${weatherCodeSpan.outerHTML}</div> <br>
+            <img id="weatherIcon" src="${link}" alt="Weather icon">`;
 
             //Delete the first marker if the list reaches 10 elements.
             if (markers.length >= 10) {

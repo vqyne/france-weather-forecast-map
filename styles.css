@@ -68,3 +68,11 @@ body, html {
 .hot{
   color: red;
 }
+
+#weatherIcon{
+  display: block;
+  justify-content: center;
+  margin:auto;
+  height: 40px;
+  width: 40px;
+}
